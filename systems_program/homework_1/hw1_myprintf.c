@@ -36,6 +36,6 @@ int myprintf(char* format, ...){
 }
 
 
-int main(){
+/*int main(){
   myprintf("hello world %d %s", 12312, "asdasd");
-}
+}*/

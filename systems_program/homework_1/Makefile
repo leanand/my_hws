@@ -10,4 +10,4 @@ create_lib:
 	ar -rs hw1.a hw1_str.o hw1_myprintf.o
 
 clean:
-	rm hw1_str.o hw1_myprintf.o hw1.a
+	rm -f hw1_str.o hw1_myprintf.o hw1.a
