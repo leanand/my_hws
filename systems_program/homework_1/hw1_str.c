@@ -49,7 +49,6 @@ int str_manip(char * str, char * substr){
   return 0;
 }
 
-
 /*int main(){
   // char * a = "gasd";
   // char * b = "dasd";
