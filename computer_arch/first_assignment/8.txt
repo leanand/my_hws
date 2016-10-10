@@ -1,0 +1,17 @@
+8. 
+  I0: DIV R9,R10,R11
+  I1: MUL R1,R2,R3
+  I2: ADD R6,R7,R8
+  I3: ADD R4,R5,R1
+
+  Without any instructions between I2 and I3, I3 will be fetched in 4th cycle and moved to Decode stage in 5th Cycle. Since it is dependant on I2 output, It will be stalled in decode stage for 2 more cycles until result from I2 is available. As Output from I2 is forwarded in 7th cycle, The I3 will be issued and executed on 8th cycle.
+
+  I0: DIV R9,R10,R11
+  I1: MUL R1,R2,R3
+  I2: ADD R6,R7,R8
+  I4: ADD ........
+  I5: ADD ........
+  I6: ADD ........
+  I3: ADD R4,R5,R1
+
+  If there are any instructions between I2 and I3 like 3 more add instructions which are independant of each other, It will impact the execution cycle of I3. Due to these instructions, I3 will be fetched in 7th cycle. During the same cycle, output from I1 is forwarded. As I3 is still in Fetch Stage, It will miss the forwarded output of I2. I3 will be stalled until output of I2 is written in register which is during 13th cycle. I3 will be stalled till 13th cycle, and it will be issued and executed during the next cycle when I1 result is available in register.
