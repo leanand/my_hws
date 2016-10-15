@@ -43,5 +43,12 @@ void mem_mngr_free(void * ptr);
 STRU_MEM_LIST * create_new_memory_list(int slot_size);
 STRU_MEM_BATCH * create_new_memory_batch(STRU_MEM_LIST * mem_list);
 STRU_MEM_BATCH *get_last_memory_batch(STRU_MEM_BATCH * mem_batch);
+STRU_MEM_LIST *find_mem_list_by_size(size_t alligned_size);
+STRU_MEM_LIST *get_last_memory_list();
 void increment_free_slots_bitmap(STRU_MEM_LIST *mem_list);
+STRU_MEM_BATCH *get_batch_by_num(STRU_MEM_LIST *mem_list, int batch_no);
+STRU_MEM_BATCH *get_batch_by_address(void * ptr);
+STRU_MEM_LIST *get_list_by_address(void *ptr);
+int check_mem_in_batch(STRU_MEM_BATCH* mem_batch, void*ptr, int slot_size);
+int get_target_pos(STRU_MEM_LIST* mem_list, STRU_MEM_BATCH* mem_batch, void *ptr);
 #endif //__MEM_MNGR_H__
