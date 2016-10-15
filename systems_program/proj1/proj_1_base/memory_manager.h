@@ -40,6 +40,8 @@ void mem_mngr_leave(void);
 void mem_mngr_print_snapshot(void);
 void * mem_mngr_alloc(size_t size);
 void mem_mngr_free(void * ptr);
-
-
+STRU_MEM_LIST * create_new_memory_list(int slot_size);
+STRU_MEM_BATCH * create_new_memory_batch(STRU_MEM_LIST * mem_list);
+STRU_MEM_BATCH *get_last_memory_batch(STRU_MEM_BATCH * mem_batch);
+void increment_free_slots_bitmap(STRU_MEM_LIST *mem_list);
 #endif //__MEM_MNGR_H__

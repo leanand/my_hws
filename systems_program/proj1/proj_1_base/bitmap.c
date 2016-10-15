@@ -16,7 +16,32 @@
  */
 int bitmap_find_first_bit(unsigned char * bitmap, int size, int val)
 {
-	/* Your code here */
+	int pos = 0;
+    int total_bits = size * BIT_PER_BYTE;
+    unsigned char current_byte = 0;
+
+    if (NULL == bitmap)
+    {
+        printf("ERROR: NULL bit map!\n");
+        return BITMAP_OP_ERROR;
+    }
+    if( size < 1)
+    {
+        printf("ERROR: Size cannot be less than 1\n");
+        return BITMAP_OP_ERROR;
+    }
+    while (pos < total_bits)
+    {
+        int v = 0;
+        current_byte = *(bitmap + pos/BIT_PER_BYTE);
+        v = ((current_byte >> pos % BIT_PER_BYTE) & 0x01);
+        if(val == v){
+            return pos;
+        }
+        pos++;
+    }
+
+    return BITMAP_OP_NOT_FOUND;
 }
 
 /*
@@ -29,7 +54,30 @@ int bitmap_find_first_bit(unsigned char * bitmap, int size, int val)
  */
 int bitmap_set_bit(unsigned char * bitmap, int size, int target_pos)
 {
-    /* Your code here */
+    if(NULL == bitmap)
+    {
+        printf("ERROR: NULL bit map!\n");
+        return BITMAP_OP_ERROR;
+    }
+    
+    if( size < 1)
+    {
+        printf("ERROR: Size cannot be less than 1\n");
+        return BITMAP_OP_ERROR;
+    }
+
+    if(target_pos > (size * BIT_PER_BYTE) - 1)
+    {
+        printf("ERROR: Target position greater than actual bits\n");
+        return BITMAP_OP_ERROR;
+    }
+
+    int offset = target_pos / BIT_PER_BYTE;
+    int actual_bit_position = target_pos % BIT_PER_BYTE;
+
+    *(bitmap + offset) |= 1 << actual_bit_position;
+
+    return BITMAP_OP_SUCCEED;
 }
 
 /*
@@ -42,7 +90,30 @@ int bitmap_set_bit(unsigned char * bitmap, int size, int target_pos)
  */
 int bitmap_clear_bit(unsigned char * bitmap, int size, int target_pos)
 {
-    /* Your code here */
+    if(NULL == bitmap)
+    {
+        printf("ERROR: NULL bit map!\n");
+        return BITMAP_OP_ERROR;
+    }
+
+    if( size < 1)
+    {
+        printf("ERROR: Size cannot be less than 1\n");
+        return BITMAP_OP_ERROR;
+    }
+
+    if(target_pos > (size * BIT_PER_BYTE) - 1)
+    {
+        printf("ERROR: Target position greater than actual bits\n");
+        return BITMAP_OP_ERROR;
+    }
+
+    int offset = target_pos / BIT_PER_BYTE;
+    int actual_bit_position = target_pos % BIT_PER_BYTE;
+
+    *(bitmap + offset) &= ~(1 << actual_bit_position);
+
+    return BITMAP_OP_SUCCEED;
 }
 
 
@@ -56,7 +127,30 @@ int bitmap_clear_bit(unsigned char * bitmap, int size, int target_pos)
  */
 int bitmap_bit_is_set(unsigned char * bitmap, int size, int pos)
 {
-    /* Your code here */
+    int value;
+    if(NULL == bitmap)
+    {
+        printf("ERROR: NULL bit map!\n");
+        return BITMAP_OP_ERROR;
+    }
+
+    if( size < 1)
+    {
+        printf("ERROR: Size cannot be less than 1\n");
+        return BITMAP_OP_ERROR;
+    }
+
+    if(pos > (size * BIT_PER_BYTE) - 1)
+    {
+        printf("ERROR: Target position greater than actual bits\n");
+        return BITMAP_OP_ERROR;
+    }
+
+    int offset = pos / BIT_PER_BYTE;
+    int actual_bit_position = pos % BIT_PER_BYTE;
+
+    value = (*(bitmap + offset) >> actual_bit_position) & 1;
+    return value;
 }
 
 /*
