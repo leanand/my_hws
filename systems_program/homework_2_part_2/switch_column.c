@@ -90,6 +90,6 @@ int main(int argv, char * args[]){
       lseek(fd, *no_of_chars , SEEK_SET);  
     }
   }  
-  
+  close(fd);
   return 0;
 }

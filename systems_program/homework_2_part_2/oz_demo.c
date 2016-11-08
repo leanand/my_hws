@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <sys/wait.h>
 
 long int time_difference(long int start_time){
   struct timeval current_time;  
