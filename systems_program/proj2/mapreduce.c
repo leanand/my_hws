@@ -6,7 +6,8 @@
 #include "mapreduce.h"
 #include "common.h"
 #include <ctype.h>
-
+#include <signal.h>
+int static handler_called = 0;
 int start_offset = 0;
 void initialize_data_split(int fd, int file_size, int split_num, DATA_SPLIT *data_splits, char *file_name){
     char byte;
@@ -40,6 +41,11 @@ void initialize_data_split(int fd, int file_size, int split_num, DATA_SPLIT *dat
     }
 };
 
+void test(){
+    handler_called = 1;
+    return;
+}
+
 void mapreduce(MAPREDUCE_SPEC * spec, MAPREDUCE_RESULT * result)
 {
     
@@ -50,6 +56,8 @@ void mapreduce(MAPREDUCE_SPEC * spec, MAPREDUCE_RESULT * result)
     DATA_SPLIT * data_splits= (DATA_SPLIT *)malloc(sizeof(DATA_SPLIT) * spec->split_num);
     int *inter_fds = (int *)malloc(sizeof(int) * spec->split_num);
     char file_name[15];
+    result->map_worker_pid = (int *)malloc(sizeof(int) * spec->split_num);
+    int temp_pid;
     if (NULL == spec || NULL == result)
     {
         EXIT_ERROR(ERROR, "NULL pointer!\n");
@@ -64,15 +72,55 @@ void mapreduce(MAPREDUCE_SPEC * spec, MAPREDUCE_RESULT * result)
     lseek(input_fd, 0L, SEEK_SET);
     initialize_data_split(input_fd, file_size, spec->split_num, data_splits, spec->input_data_filepath);
     // printf("File_size %d\n", file_size);
-    for(int i=0; i < spec->split_num; i ++){
+    for(int i=0; i < spec->split_num; i++){
         sprintf(file_name,"mr-%d.itm",i);
-        inter_fds[i] = open(file_name, O_RDWR | O_CREAT | O_TRUNC, 0660);
+        inter_fds[i] = open(file_name, O_RDWR | O_CREAT | O_TRUNC, 0777);
         data_splits[i].usr_data = spec->usr_data;
-        printf("Debug: Applying map function to part %d \n",i);
+    }
+    for(int i=0; i < spec->split_num; i ++){
         spec->map_func(&data_splits[i], inter_fds[i]);
+
+      /*  temp_pid = fork();
+        if(temp_pid < 0){
+            printf("Error in forking\n");
+            abort();
+        }else if(temp_pid == 0){
+            spec->map_func(&data_splits[i], inter_fds[i]);
+            if(i == 0){
+                signal(SIGUSR1, test);
+                while(handler_called == 0) {
+                    sleep(1);
+                }
+                spec->reduce_func(inter_fds, spec->split_num, output_fd);
+                exit(0);
+            }else{
+                exit(0);
+            }
+        }else{
+            result->map_worker_pid[i] = temp_pid;
+            if(i == 0){
+                result->reduce_worker_pid = temp_pid;
+            }
+            printf("Debug: Child process %d with pid %d\n starting",i, result->map_worker_pid[i]);
+        }*/
     }
     spec->reduce_func(inter_fds, spec->split_num, output_fd);
-    gettimeofday(&end, NULL);   
+   /* int status;
+    int pid;
+    for(int i=0; i <spec->split_num; i++){
+        if(i == spec->split_num -1 ){
+            kill(result->map_worker_pid[0], SIGUSR1);
+        }
+        pid = wait(&status);
+        printf("Child process with pid %d exited!\n",pid);
+    }*/
     close(input_fd);
+    close(output_fd);
+    for(int i = 0; i < spec->split_num; i++){
+        close(data_splits[i].fd);
+    }
+    free(data_splits);
+    free(inter_fds);
+    gettimeofday(&end, NULL);   
     result->processing_time = (end.tv_sec - start.tv_sec) * US_PER_SEC + (end.tv_usec - start.tv_usec);
 }

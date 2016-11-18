@@ -93,7 +93,6 @@ int letter_counter_reduce(int * p_fd_in, int fd_in_num, int fd_out)
       // printf("lettter _ index ===> %d ===> %d\n", i, letter_array[i]);
       dprintf(fd_out, "%c %d\n", i+65, letter_array[i]);
     }
-    
     return 0;
 }
 
@@ -117,18 +116,21 @@ int word_finder_map(DATA_SPLIT * split, int fd_out)
     memset(check_word, '\0', 25);
     int line_added = -1;
     int start_offset = lseek(split->fd, 0L, SEEK_CUR);
+    char *check_buf;
     while(count < split->size){
       read(split->fd, &buf, 1);
-      printf("%c",buf);
+      // printf("%c",buf);
       if(isspace(buf)){
-        if(word_length == user_data_length && line_added != line_count){
-          if(strncmp(check_word, split->usr_data, word_length) == 0 ){
-            printf("Debug: Word match %s at %d : line %d\n ",check_word, count, line_count);
+        if(line_added != line_count && word_length >= user_data_length){
+          check_buf = strstr(check_word, split->usr_data);
+          if(check_buf != NULL){
+            printf("\nDebug: Word match %s at %d : line %d\n ",check_word, count, line_count);
             // printf("Seeking to position ==> %d, split_size ===> %d, count ==> %d", -(split->size - count), split->size, count);
             int current_off = lseek(split->fd, 0L, SEEK_CUR);
             lseek(split->fd, start_offset , SEEK_SET);
             write_line(fd_out, line_count, split->fd, split->size);
             lseek(split->fd, current_off, SEEK_SET);
+            line_added = line_count;
           }
         }
         if(buf == '\n'){
@@ -142,9 +144,10 @@ int word_finder_map(DATA_SPLIT * split, int fd_out)
       }
       count ++;
     }
-    if(word_length == user_data_length && line_added != line_count){
-      if(strncmp(check_word, split->usr_data, word_length) == 0 ){
-        printf("Debug: Word match %s at %d : line %d\n ",check_word, count, line_count);
+    if(word_length >= user_data_length && line_added != line_count){
+      check_buf = strstr(check_word, split->usr_data);
+      if(check_buf != NULL ){
+        printf("\nDebug: Word match %s at %d : line %d\n ",check_word, count, line_count);
         // printf("Seeking to position ==> %d, split_size ===> %d, count ==> %d", -(split->size - count), split->size, count);
         int current_off = lseek(split->fd, 0L, SEEK_CUR);
         lseek(split->fd, start_offset , SEEK_SET);
@@ -170,13 +173,18 @@ int word_finder_map(DATA_SPLIT * split, int fd_out)
 */
 int word_finder_reduce(int * p_fd_in, int fd_in_num, int fd_out)
 {
-  printf("Debug: word_finder_reduce\n");
+  printf("Debug:%d word_finder_reduce\n" , (int)getpid());
   printf("Debug: Output\n");
   char buf;
+  int status = 0;
   lseek(fd_out, 0L, SEEK_SET);
   for(int i=0;i < fd_in_num; i ++){
     lseek(p_fd_in[i], 0L, SEEK_SET);
-    while(read(p_fd_in[i], &buf, 1) != 0){
+    while(1){
+      status = read(p_fd_in[i], &buf, 1);
+      if(status != 1){
+        break;
+      }
       printf("%c",buf);
       write(fd_out, &buf, 1);
     }
@@ -188,17 +196,17 @@ int write_line(int fd_out, int line_no, int fd_in, int size){
   int count = size;
   char buf;
   int line_count = 0;
+  printf("Debug: Writing line %d into file \n", line_no);
   while(count > 0 && line_count <= line_no){
     read(fd_in, &buf, 1);
     if(buf == '\n'){
       line_count ++;
     }else if(line_no == line_count){
-      printf("|%c|", buf);
+      printf("%c", buf);
       write(fd_out, &buf, 1);
     }
     count --;
   }
-  printf("\n");
   write(fd_out, "\n", 1);
  return 1;
 }

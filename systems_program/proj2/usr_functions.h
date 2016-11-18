@@ -13,5 +13,5 @@ int word_finder_map(DATA_SPLIT * split, int fd_out);
 int word_finder_reduce(int * p_fd_in, int fd_in_num, int fd_out);
 
 int write_line(int fd_out, int line_no, int fd_in, int size);
-
+void test();
 #endif

@@ -144,7 +144,6 @@ int main(int argc, char * argv[])
 
     printf("Reduce worker pid: %d\n", result.reduce_worker_pid);
     printf("Processing time (us): %d\n", result.processing_time);
-    
     exit(0);
 }
 
