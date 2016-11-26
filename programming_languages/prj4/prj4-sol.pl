@@ -18,7 +18,7 @@
 
 quadratic_roots(X, Y, Z, Roots):- 
   Den is 2 * X,
-  Num is (Y * Y - 4 * X * Z),
+  Num is sqrt(Y * Y - 4 * X * Z),
   Fir is (- Y + Num )/ Den ,
   Sec is (- Y - Num )/ Den ,
   Roots = [Fir, Sec].
@@ -116,11 +116,14 @@ flatten_tree(X, Flattened):-
 %Sample regex equivalent to [-+]?([0-9] | [0-9][0-9_]*[0-9])
 sample_regex(optional(Sign) * 
              (Digits + 
-	      Digits * closure0(XDigits) * Digits)):-
+        Digits * closure0(XDigits) * Digits)):-
   Sign = "-+",
   Digits = range(0'0, 0'9),
   XDigits = Digits + "_".
 
+%sample_regex(closure0(Xdigits) * Digits):-
+%  Digits = range(0'0, 0'9),
+%  Xdigits = Digits + "_".
 
 /** Exercise 5 Requirements Continued:
  *  regex_match(Regex, String) succeeds iff prolog string String matched
@@ -142,29 +145,48 @@ sample_regex(optional(Sign) *
 %?- sample_regex(A), regex_match(A, "-12_3_").
 %false.
 
-as -->  [].
-as -->  [a], as.
+regex_match_aux([], [], []).
 
-regex_match_aux(_, []).
+regex_match_aux(X + Y, String, Output):-
+  regex_match_aux(X, String, Output);
+  regex_match_aux(Y, String, Output).
 
-regex_match_aux(range(X, Y), [H | T]) :-
+regex_match_aux(X * Y, String, Output):-
+  regex_match_aux(X, String, Output1),
+  regex_match_aux(Y, Output1, Output).
+
+regex_match_aux(range(X, Y), [H | T], Output) :-
   X =< H,
   Y >= H,
-  regex_match_aux([], T).
+  Output = T.
 
-regex_match_aux(optional(String), [H | T]) :-
-  string_to_list(String, List),
-  ( member(H , List) 
-  -> regex_match_aux([], T)
-  ; regex_match_aux([], [H | T])
-  ).
+regex_match_aux(optional(String), InputList, Output) :-
+  regex_match_aux(String, InputList, Output).
 
-regex_match_aux(closure0(X), [H | T]) :-
-  X =:= H,
-  regex_match_aux([], T).
+regex_match_aux(optional(String), InputList, Output) :-
+  \+ regex_match_aux(String, InputList, Output),
+  Output = InputList.
+
+regex_match_aux(closure0(X), InputList, Output) :-
+  regex_match_aux(X, InputList, Output1),
+  regex_match_aux(closure0(X), Output1, Output).
+
+regex_match_aux(closure0(X), InputList, Output) :-
+  regex_match_aux(X, InputList, Output).
+
+regex_match_aux(closure0(X), InputList, Output) :-
+  \+ regex_match_aux(X, InputList, _),
+  Output = InputList.
+
+regex_match_aux(StringList, [H | T], Output):-
+  is_list(StringList),
+  member(H, StringList),
+  Output = T.
 
 regex_match(List, String):-
-  List = String.
+  string_to_list(String, StringList),
+  once(regex_match_aux(List, StringList, [])).
+
 /** Exercise 6 Requirements:
  *  A NFA is represented as nfa(Initial, Transitions, Finals).
  *
@@ -181,11 +203,11 @@ regex_match(List, String):-
  *
  */
 sample_nfa(nfa(s0,
-	       [transition(s0, 1, s1), transition(s0, 1, s2),
+         [transition(s0, 1, s1), transition(s0, 1, s2),
                 transition(s2, epsilon, s3),
                 transition(s3, 0, s3), transition(s3, 1, s3),
-		transition(s3, 1, s4)],
-	       [s4])).
+    transition(s3, 1, s4)],
+         [s4])).
 
 /** Exercise 6 Requirements Continued:
  *  nfa_simulate(NFA, Inputs, States, Z) should succeed when
