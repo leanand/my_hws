@@ -15,18 +15,19 @@ import java.util.logging.Logger;
  */
 public class Unit {
     private static final Logger LOGGER = Logger.getGlobal();
-    private final int latency;
     private final String type;
     private final String[] supportedIns;
     public final String name;
     private int requiredCycle;
     private List<Instructions> processingInst;
+    private int cacheMissPenalty;
     public Unit(String name, String Type, int latency, String[] supportedIns){
-        this.latency = latency;
         this.type = Type;
         this.name = name;
         this.supportedIns = supportedIns;
-        LOGGER.info("Creating functional unit "+ name + " of type "+ Type +" with latency "+ latency);
+        this.cacheMissPenalty = 0;
+        this.setRequiredCycle(latency);
+       LOGGER.info("Creating functional unit "+ name + " of type "+ Type +" with latency "+ latency);
     }
     public void setRequiredCycle(int reqCycle){
         this.requiredCycle = reqCycle;
@@ -46,6 +47,9 @@ public class Unit {
         }else{
             return false;
         }
+    }
+    public void setCacheMissPenalty(int penalty){
+        this.cacheMissPenalty = penalty;
     }
     public boolean doesSupportOpt(String operation){
         boolean doesSupport = false;
@@ -68,7 +72,7 @@ public class Unit {
 
     public void issue(Instructions inst){
         if(this.isFree()){
-                inst.setIssued(this.requiredCycle);
+                inst.setIssued(this.requiredCycle, this.cacheMissPenalty);
                 this.addInstruction(inst);
         }else{
             LOGGER.warning(inst + " Cannot issue to busy functional unit");
@@ -129,6 +133,47 @@ public class Unit {
             }
         }
     }
+    public void advanceClockUnPipeline(RegisterList rTable){
+        Instructions target = this.processingInst.get(0);
+        if(target != null){
+            int cycleLeft = target.decrementCycle();
+            if(cycleLeft == 0){
+                target.setCompleted();
+                rTable.setFree(target);
+                this.processingInst.set(0, null);
+            }
+        }
+    }
+    
+    public void advanceClockPipelineVariable(RegisterList rTable){
+        for(int i =this.requiredCycle - 1 ; i >= 0; i--){
+            Instructions target = this.processingInst.get(i);
+            if(target != null){
+                if(i == this.requiredCycle - 1){
+                    if(target.isCacheMiss()){
+                        if(target.decrementCycle() == 0){
+                            this.processingInst.set(i, null);
+                            target.setCompleted();
+                            rTable.setFree(target);
+                        }
+                    }else{
+                        target.decrementCycle();
+                        this.processingInst.set(i, null);
+                        target.setCompleted();
+                        rTable.setFree(target);
+                    }
+                }else{
+                    if(this.processingInst.get(i + 1) == null){
+                        target.decrementCycle();
+                        this.processingInst.set(i+1, target);
+                        this.processingInst.set(i, null);
+                    }else{
+                        LOGGER.fine(target + " instruction stalled");
+                    }
+                }
+            }
+        }
+    }
     
     public void advanceClock(RegisterList rTable){
         switch(this.type){
@@ -136,8 +181,10 @@ public class Unit {
                 this.advanceClockPipeline(rTable);
                 break;
             case "pipelinedVariable":
+                this.advanceClockPipelineVariable(rTable);
                 break;
             default:
+                this.advanceClockUnPipeline(rTable);
                 break;
         }
     }

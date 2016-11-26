@@ -13,21 +13,37 @@ import java.util.logging.Logger;
  * @author lovelinanand
  */
 public class UnitsList {
-    public static int cycle;
     private static final Logger LOGGER = Logger.getGlobal();
     private Hashtable<String, Unit> unitsTable;
-    public UnitsList(){
+    private final int cacheMiss;
+    public UnitsList(int cacheMiss){
+        this.cacheMiss = cacheMiss;
         this.unitsTable = new Hashtable<String, Unit>();
         this.createAlU();
+        this.createMUL();
+        this.createDiv();
+        this.createLD();
     }
     public void addUnit(String unitName, Unit unit){
         this.unitsTable.put(unitName, unit);
     }
     private void createAlU(){
         Unit ALU = new Unit("ALU", "pipelined", 1,new String[] {"ADD", "SUB"});
-        ALU.setRequiredCycle(4);
         this.addUnit("ALU", ALU);
         
+    }
+    private void createDiv(){
+        Unit DIV = new Unit("DIV", "unpipelined", 8,new String[] {"DIV"});
+        this.addUnit("DIV", DIV);
+    }
+    private void createMUL(){
+        Unit MUL = new Unit("MUL", "pipelined", 4,new String[] {"MUL"});
+        this.addUnit("MUL", MUL);
+    }
+    private void createLD(){
+        Unit LD = new Unit("LOAD", "pipelinedVariable", 4,new String[] {"LDH","LDM","ST"});
+        LD.setCacheMissPenalty(this.cacheMiss);
+        this.addUnit("LOAD", LD);
     }
     public Unit getUnitByOperation(String operation){
         Unit targetUnit = null;

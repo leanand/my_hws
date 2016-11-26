@@ -24,16 +24,25 @@ public class Scoreboard {
     private RegisterList rTable;
     public UnitsList uTable;
     public int totalInstructions;
+    public int issueWidth;
+    public int cacheMiss;
+    public Integer[] dumpCycleNo;
+    public String orderType = "inorder";
     public Scoreboard(String inputFile, String orderType){
         LOGGER.info("Initializing Scoreboard");
         this.itTable = new InstructionsList(orderType);
-        this.rTable = new RegisterList();
-        this.uTable = new UnitsList();
         this.loadInstructions(inputFile);
+        this.checkConfig();
+        this.rTable = new RegisterList();
+        this.uTable = new UnitsList(this.cacheMiss);
         this.loadRegisters();
         cycle = 0;
     }
-    
+    public void checkConfig(){
+        this.cacheMiss = this.itTable.getCacheMiss();
+        this.issueWidth = this.itTable.getIssueWidth();
+        this.dumpCycleNo = this.itTable.getDump();
+    }
     public void loadRegisters(){
         for(Integer key : this.itTable.keyList()){
             Instructions ins = this.itTable.get(key);
@@ -66,7 +75,25 @@ public class Scoreboard {
             System.exit(0);
         }
     }
-    public void checkNextInstruction(){
+    public void checkInorderOutorder(){
+        if(this.orderType.equals("outorder")){
+            this.issueOutorder();
+        }else{
+            this.issueInorder();
+        }
+    }
+    public void issueInorder(){
+        for(int i =0; i < this.issueWidth; i ++){
+            if(!checkNextInstruction()){
+                break;
+            }
+        }
+    }
+    public void issueOutorder(){
+        
+    }
+    public boolean checkNextInstruction(){
+        boolean instructionIssued = false;
         Instructions nextIns = this.itTable.next();
         if(nextIns != null){
             LOGGER.fine("Next instruction to be issue is "+ nextIns);
@@ -75,6 +102,7 @@ public class Scoreboard {
                 if(!this.rTable.isDependant(nextIns)){
                     LOGGER.fine(nextIns + " Dependancy not present, can be issued");
                     this.issueInstruction(nextIns);
+                    instructionIssued = true;
                 }else{
                     LOGGER.fine(nextIns +" Dependancy present, cannot issue");
                 }
@@ -84,30 +112,38 @@ public class Scoreboard {
         }else{
             LOGGER.fine("No instructions available");
         }
+        return instructionIssued;
     }
     public void issueInstruction(Instructions instr){
         this.uTable.issue(instr);
         this.rTable.setBusy(instr);
-        LOGGER.fine(instr + " issued");
     }
     public void advanceClock(){
         this.uTable.advanceClock(rTable);
         LOGGER.fine("Advancing clock");
     }
     public void dumpScoreboard(){
-        System.out.println("Cycle "+cycle + " Dumping ");
-        this.uTable.dump();
-        this.rTable.dump();
-        this.itTable.dump();
+        for(Integer value : this.dumpCycleNo){
+            if(value == cycle){
+                this.uTable.dump();
+                this.rTable.dump();
+                this.itTable.dump();
+            }
+        }
     }
     public void start(){
         LOGGER.info("Starting the scoreboard process");
+        LOGGER.info("CacheMiss: "+this.cacheMiss + " IssueWidth: "+ this.issueWidth);
         while(true){
             if(this.itTable.isCompleted() == true){
                 break;
             }
+            System.out.println("-----------------------");
+            System.out.println("Cycle " + cycle);
+            System.out.println("-----------------------");
             this.advanceClock();
-            this.checkNextInstruction();   
+            this.checkInorderOutorder();
+//            this.checkNextInstruction();   
             this.dumpScoreboard();
             cycle ++ ;
         }
@@ -124,7 +160,6 @@ public class Scoreboard {
      */
     public static void main(String[] args) {
 //        setDebug();
-        System.out.println(LOGGER.getLevel());
         Scoreboard scorebd = new Scoreboard("input.txt", "inorder");
         scorebd.start();
     }

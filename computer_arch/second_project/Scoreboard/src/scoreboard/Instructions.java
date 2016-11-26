@@ -13,7 +13,6 @@ import java.util.logging.Logger;
  */
 public class Instructions {
     private static final Logger LOGGER = Logger.getGlobal();
-    public static int cycle;
     private final String instruction;
     private String operation;
     private String Source1;
@@ -27,7 +26,7 @@ public class Instructions {
     public Instructions(String instruction, int count){
         this.instruction = instruction;
         this.lineCount = count;
-        String[] parts = instruction.split(" ");
+        String[] parts = instruction.split("\\s+");
         this.operation = parts[0];
         this.instStatus = 0;
         switch(this.operation){
@@ -48,7 +47,6 @@ public class Instructions {
                 this.Source1 = parts[1];
                 this.Source2 = parts[3];
                 this.Destination = parts[2];
-                
                 break;
             default:
                 this.Destination = parts[1];
@@ -59,7 +57,7 @@ public class Instructions {
         LOGGER.info("Adding Instruction => "+ count +" = "+  instruction);
     }
     public String getStatusString(){
-        String status = "";
+        String status;
         switch(this.instStatus){
             case 0:
                 status="Waiting";
@@ -117,22 +115,39 @@ public class Instructions {
         return this.operation;
     }
     
-    public void setIssued(int cycleLeft){
-        this.instStatus = 2;
-        this.cyclesLeft = cycleLeft;
-        this.totalCycleRequired = cycleLeft;
+    public Boolean isCacheMiss(){
+        if(this.operation.equals("LDM")){
+            return true;
+        }else{
+            return false;
+        }
     }
-    public void decrementCycle(){
+    
+    public void setIssued(int cycleLeft, int cacheMiss){
+        this.instStatus = 2;
+        int actualCyclesLeft;
+        if(this.isCacheMiss()){
+            actualCyclesLeft = cycleLeft + cacheMiss;
+        }else{
+            actualCyclesLeft = cycleLeft;
+        }
+        this.cyclesLeft = actualCyclesLeft;
+        this.totalCycleRequired = actualCyclesLeft;
+        System.out.println("issue: " + this);
+    }
+    public int decrementCycle(){
         if(this.cyclesLeft > 0){
             this.cyclesLeft --;
-           
         }else{
             LOGGER.fine("Cannot decrement cycle in instructions" + this.toString());
+            System.exit(0);
         }
+        return this.cyclesLeft;
     }
     public void setCompleted(){
         if(this.cyclesLeft == 0){
             this.instStatus = 3;
+            System.out.println("complete: " + this);
         }else{
             LOGGER.warning(this + "Cannot set completed status , cycles still left " + this.cyclesLeft );
             System.exit(0);

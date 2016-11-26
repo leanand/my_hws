@@ -73,4 +73,37 @@ public class InstructionsList {
         }
         System.out.format("+-----------------+------------+%n");
     }
+    public int getCacheMiss(){
+        int cacheMiss = 0;
+         for(Integer key: this.InstructionTable.keySet()){
+            Instructions temp = this.InstructionTable.get(key);
+            if("CACHEMISS".equals(temp.getOperation())){
+                cacheMiss = Integer.parseInt(temp.getSource1());
+            }
+        }
+        return cacheMiss;
+    }
+    
+    public int getIssueWidth(){
+        int issueWidth = 1;
+        for(Integer key: this.InstructionTable.keySet()){
+            Instructions temp = this.InstructionTable.get(key);
+            if("ISSUEWIDTH".equals(temp.getOperation())){
+                issueWidth = Integer.parseInt(temp.getSource1());
+            }
+        }
+        return issueWidth;
+    }
+    
+    public Integer[] getDump(){
+        Integer[] dumpCycles = { -1, -1};
+        for(Integer key: this.InstructionTable.keySet()){
+            Instructions temp = this.InstructionTable.get(key);
+            if("DUMP".equals(temp.getOperation())){
+                dumpCycles[0] = Integer.parseInt(temp.getSource1());
+                dumpCycles[1] = Integer.parseInt(temp.getSource2());
+            }
+        }
+        return dumpCycles;
+    }
 }

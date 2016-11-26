@@ -28,8 +28,10 @@ public class RegisterList {
         }
         public boolean isBusy(String registerName){
             boolean isBusy = false;
-            if(registerName != null && this.RegisterTable.get(registerName) != 0){
-                isBusy = true;
+            if(registerName != null){
+                if(this.RegisterTable.get(registerName) != null && this.RegisterTable.get(registerName) != 0){
+                    isBusy = true;
+                }
             }
             return isBusy;
         }
@@ -37,7 +39,8 @@ public class RegisterList {
             boolean isDependant = false;
             String source1 = ins.getSource1();
             String source2 = ins.getSource2();
-            if(this.isBusy(source1) || this.isBusy(source2)){
+            String destination = ins.getDestination();
+            if(this.isBusy(source1) || this.isBusy(source2) || this.isBusy(destination)){
                 isDependant = true;
             }
             return isDependant;
