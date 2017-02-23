@@ -9,10 +9,10 @@ import Debug.Trace
 -- roots.
 quadraticRoots :: Floating t => t -> t -> t -> (t, t)
 quadraticRoots a b c =
-  let firPart = (- b / (2 * a))
-      sqrPart = sqrt ((b ^ 2) - (4 * a * c))
-      secPart = sqrPart / (2 * a)
-  in (firPart + secPart,firPart - secPart)
+  let firPart = (- b)
+      secPart = sqrt ((b ^ 2) - (4 * a * c))
+      
+  in ((firPart + secPart) / (2 * a),(firPart - secPart) / (2 * a))
 
 -- Problem 2
 -- Return infinite list containing [z, f(z), f(f(z)), f(f(f(z))), ...]

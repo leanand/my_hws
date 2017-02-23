@@ -18,7 +18,7 @@ public class Instructions {
     private String Source1;
     private String Source2;
     private String Destination;
-    private int lineCount;
+    public int lineCount;
     // 99 cannot be executed. 0 - ready, 1 - dispatched, 2 - issued, 3 - completed
     private int instStatus; 
     private int cyclesLeft;
@@ -111,6 +111,14 @@ public class Instructions {
         }
     }
     
+    public Boolean canBeDispatched(){
+        if(this.instStatus == 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
     public String getOperation(){
         return this.operation;
     }
@@ -133,7 +141,11 @@ public class Instructions {
         }
         this.cyclesLeft = actualCyclesLeft;
         this.totalCycleRequired = actualCyclesLeft;
-        System.out.println("issue: " + this);
+        System.out.println("Issue: " + this);
+    }
+    public void setDispatched(){
+        this.instStatus = 1;
+        System.out.println("Dispatch:" + this);
     }
     public int decrementCycle(){
         if(this.cyclesLeft > 0){

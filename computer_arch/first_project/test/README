@@ -1,0 +1,15 @@
+To run the program:
+
+make
+
+./branch_predictor <input_file> <output_file>
+
+
+
+Contributers:
+
+Lovelin Anand Edward Paul
+ledward6@binghamton.edu
+
+Anurag Singh
+asingh72@binghamton.edu

@@ -1,0 +1,4 @@
+Statistics
+Local Prediction : 8559 of 10000 are predicted correct
+Global Prediction : 9266 of 10000 are predicted correct
+Tournament Prediction : 9978 of 10000 are predicted correct

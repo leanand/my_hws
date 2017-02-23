@@ -50,6 +50,18 @@ public class InstructionsList {
         return nextIns;
     }
     
+    public Instructions nextDispatch(){
+        Instructions nextIns = null;
+        for(Integer key : this.InstructionTable.keySet()){
+            Instructions temp = this.InstructionTable.get(key);
+            if(temp.canBeDispatched()){
+                nextIns = temp;
+                break;
+            }
+        }
+        return nextIns;
+    }
+    
     public boolean isCompleted(){
         boolean isCompleted = true;
         for(Integer key: this.InstructionTable.keySet()){

@@ -32,7 +32,10 @@ do_server(ListPids) ->
   [HeadPid | TailPids ] = ListPids,
   receive
     {ClientPid, calculate, X} ->
-      HeadPid ! {ClientPid, TailPids, X, 0},
+      HeadPid ! {self(), ClientPid, TailPids, X, 0},
+      do_server(ListPids);
+    {calculated, ClientPid, Output} ->
+      ClientPid ! {result, Output},
       do_server(ListPids);
     stop ->
       HeadPid ! {TailPids, stop},
@@ -61,15 +64,15 @@ do_log(Coeff, Msg) ->
 
 child_coeff(Coeff)->
   receive
-    {ClientPid, [NextPid|RemainingPid], X, Acc} ->
+    {ServerPid, ClientPid, [NextPid|RemainingPid], X, Acc} ->
       TempAcc = (X * Acc) + Coeff,
       do_log(Coeff, TempAcc),
-      NextPid ! {ClientPid, RemainingPid, X, TempAcc},
+      NextPid ! {ServerPid, ClientPid, RemainingPid, X, TempAcc},
       child_coeff(Coeff);
-    {ClientPid, [], X, Acc} ->
+    {ServerPid, ClientPid, [], X, Acc} ->
       TempAcc = (X * Acc) + Coeff,
       do_log(Coeff, TempAcc),
-      ClientPid ! {result, TempAcc},
+      ServerPid ! {calculated, ClientPid, TempAcc},
       child_coeff(Coeff);
     {[NextPid|RemainingPid] , stop} ->
       do_log(Coeff, stop),

@@ -8,7 +8,6 @@ package scoreboard;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
@@ -23,6 +22,7 @@ public class Scoreboard {
     private InstructionsList itTable;
     private RegisterList rTable;
     public UnitsList uTable;
+    public InstructionQueue iQueue;
     public int totalInstructions;
     public int issueWidth;
     public int cacheMiss;
@@ -35,6 +35,8 @@ public class Scoreboard {
         this.checkConfig();
         this.rTable = new RegisterList();
         this.uTable = new UnitsList(this.cacheMiss);
+        this.iQueue = new InstructionQueue();
+        this.orderType = orderType;
         this.loadRegisters();
         cycle = 0;
     }
@@ -75,24 +77,7 @@ public class Scoreboard {
             System.exit(0);
         }
     }
-    public void checkInorderOutorder(){
-        if(this.orderType.equals("outorder")){
-            this.issueOutorder();
-        }else{
-            this.issueInorder();
-        }
-    }
-    public void issueInorder(){
-        for(int i =0; i < this.issueWidth; i ++){
-            if(!checkNextInstruction()){
-                break;
-            }
-        }
-    }
-    public void issueOutorder(){
-        
-    }
-    public boolean checkNextInstruction(){
+    public boolean issueInorder(){
         boolean instructionIssued = false;
         Instructions nextIns = this.itTable.next();
         if(nextIns != null){
@@ -114,6 +99,69 @@ public class Scoreboard {
         }
         return instructionIssued;
     }
+    public boolean issueOutorder(){ 
+        boolean isIssued = false;
+        for(Instructions nextIn : this.iQueue.queue){
+            if(this.uTable.canIssue(nextIn)){
+                LOGGER.fine("Functional unit available, can issue");
+                if(!this.iQueue.isAntiDependant(nextIn)){
+                    LOGGER.fine("No anti dependancy, checking true dependancy");
+                    if(!this.rTable.isDependant(nextIn)){
+                        LOGGER.fine("No true ore WAW dependancy");
+                        this.issueInstruction(nextIn);
+                        this.iQueue.removeIns(nextIn);
+                        isIssued = true;
+                        break;
+                    }else{
+                        LOGGER.fine("True dependancy or WAW dependancy");
+                    }
+                }else{
+                    LOGGER.fine("Anti dependancy");
+                }
+            }else{
+                LOGGER.fine("Functional unit not available, cannot issue");
+            }
+        }
+        return isIssued;
+    }
+    public boolean isInOrder(){
+        return this.orderType.equals("inorder");
+    }
+    private boolean dispatchInstruction() {
+        if(this.isInOrder()){
+            return false;
+        }
+        boolean instructionDispatched = false;
+        Instructions nextIns = this.itTable.nextDispatch();
+        if(nextIns != null){
+            LOGGER.fine("Next instruction to be dispatched is"+nextIns);
+            if(this.iQueue.canBeDispatched(nextIns)){
+                this.iQueue.dispatch(nextIns);
+                instructionDispatched = true;
+            }else{
+                LOGGER.fine("Instruction cannot be dispatched, has dependancy");
+            }
+        }else{
+            LOGGER.fine("No instructions available to dispatch");
+        }
+        return instructionDispatched;
+    }
+    public boolean issueInorOutofOrder(){
+        if(this.isInOrder()){
+            return this.issueInorder();
+        }else{
+            return this.issueOutorder();
+        }
+    }
+    public void checkNextInstruction(){
+        int count = 0;
+        while(count < this.issueWidth){
+            if(!this.issueInorOutofOrder()){
+                break;
+            }
+            count ++;
+        }
+    }
     public void issueInstruction(Instructions instr){
         this.uTable.issue(instr);
         this.rTable.setBusy(instr);
@@ -134,16 +182,13 @@ public class Scoreboard {
     public void start(){
         LOGGER.info("Starting the scoreboard process");
         LOGGER.info("CacheMiss: "+this.cacheMiss + " IssueWidth: "+ this.issueWidth);
-        while(true){
-            if(this.itTable.isCompleted() == true){
-                break;
-            }
+        while(this.itTable.isCompleted() != true){
             System.out.println("-----------------------");
             System.out.println("Cycle " + cycle);
             System.out.println("-----------------------");
             this.advanceClock();
-            this.checkInorderOutorder();
-//            this.checkNextInstruction();   
+            this.checkNextInstruction();
+            this.dispatchInstruction();
             this.dumpScoreboard();
             cycle ++ ;
         }
@@ -160,8 +205,13 @@ public class Scoreboard {
      */
     public static void main(String[] args) {
 //        setDebug();
-        Scoreboard scorebd = new Scoreboard("input.txt", "inorder");
+        if(args.length != 3){
+            System.out.println("Usage: ./scoreboard <input_txt> <order_type>");
+            System.exit(0);
+        }
+        String input_txt = args[1];
+        String order_type = args[2];
+        Scoreboard scorebd = new Scoreboard(input_txt, order_type);
         scorebd.start();
     }
-    
 }

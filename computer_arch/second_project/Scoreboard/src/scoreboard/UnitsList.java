@@ -41,7 +41,7 @@ public class UnitsList {
         this.addUnit("MUL", MUL);
     }
     private void createLD(){
-        Unit LD = new Unit("LOAD", "pipelinedVariable", 4,new String[] {"LDH","LDM","ST"});
+        Unit LD = new Unit("LOAD", "pipelinedVariable", 2,new String[] {"LDH","LDM","ST"});
         LD.setCacheMissPenalty(this.cacheMiss);
         this.addUnit("LOAD", LD);
     }
