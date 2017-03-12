@@ -26,7 +26,7 @@ var (
 	arg_askfile  = flag.String("askfile", "data/ask.txt", "the file the askers should query from")
 
 	arg_readers = flag.Int("readers", 4, "number of reader goroutines")
-	arg_infiles = flag.String("infiles", "", "comma separated list of files to fill map with")
+	arg_infiles = flag.String("infiles", "data/pg1041.txt,data/pg1103.txt,data/pg1107.txt,data/pg1112.txt,data/pg1120.txt,data/pg1128.txt,data/pg1129.txt,data/pg1514.txt,data/pg1524.txt,data/pg2235.txt,data/pg2240.txt,data/pg2242.txt,data/pg2243.txt,data/pg2264.txt,data/pg2265.txt,data/pg2267.txt", "comma separated list of files to fill map with")
 
 	totalWords   int64
 	totalQueries int64
@@ -93,6 +93,7 @@ func main() {
         fmt.Println("Starting Reducer")
         reduce_kill := make(chan int)
         go reducer(max_word, emap, "INVALID", 0, reduce_kill)
+        go reducer(min_word, emap, "INVALID", int(^uint(0) >> 1), reduce_kill)
 
 
 	fmt.Println("\nRunning\n")
@@ -142,6 +143,14 @@ func max_word(w1 string, c1 int, w2 string, c2 int) (string, int) {
     }
     return w2, c2
 }
+
+func min_word(w1 string, c1 int, w2 string, c2 int) (string, int) {
+    if c1 < c2 {
+        return w1, c1
+    }
+    return w2, c2
+}
+
 
 func reducer(functor ReduceFunc, emap EmergingMap, accum_str string, accum_int int, kill chan int) {
     for {
