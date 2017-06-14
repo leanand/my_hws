@@ -1,0 +1,33 @@
+Lovelin Anand Edward Paul - ledward6@binghamton.edu
+Kiran Shantappa Ullagaddi - kshanta1@binghamton.edu
+
+
+System Configuration:
+	Linux 
+	4.8.0-0.bpo.2-amd64
+	Intel(R) Xeon(R) CPU E31240 @ 3.30GHz
+	NVIDIA Corporation GF108GL [Quadro 600] 
+	Number of SM, U : 2
+	Number of Threads per block: 96
+	
+	  	
+To run the program,
+
+make
+
+Usage: ./triliteration <NUM_in_power_2> <U> <V> <input_file> <check_file>
+
+Sample Usage:
+
+./triliteration 15 2 96 input_tuples.txt output.txt
+
+
+The input_tuples.txt contains the input list of tuples data including the guard points. 
+The output.txt contains the average X and Y points to verify
+These files are generated using python script generate_tuples.py
+
+
+The results are stored under result folder for every 28 settings with format 
+<NUM>_<U>_<V>.txt
+
+The execution time is stored under Result.xls

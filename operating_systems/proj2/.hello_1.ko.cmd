@@ -1,1 +1,0 @@
-cmd_/media/sf_workspace/homeworks/operating_systems/proj2/hello_1.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /media/sf_workspace/homeworks/operating_systems/proj2/hello_1.ko /media/sf_workspace/homeworks/operating_systems/proj2/hello_1.o /media/sf_workspace/homeworks/operating_systems/proj2/hello_1.mod.o

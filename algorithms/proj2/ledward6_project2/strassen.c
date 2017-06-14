@@ -262,6 +262,7 @@ Matrix * _do_recur_strassen(Matrix * matrixA, Matrix * matrixB){
     matrixP7 = _do_recur_strassen(matrixTemp1, matrixTemp2); 
     free_matrix(matrixTemp1);
     free_matrix(matrixTemp2);                       
+    
     free_matrix(matrix_A);
     free_matrix(matrix_B);
     free_matrix(matrix_C);
@@ -290,8 +291,14 @@ Matrix * _do_recur_strassen(Matrix * matrixA, Matrix * matrixB){
     merge_4 = _subtract_matrix(matrixTemp2, matrixP7);   
     free_matrix(matrixTemp1);
     free_matrix(matrixTemp2); 
-    
-    
+    free_matrix(matrixP1) ;
+    free_matrix(matrixP2) ;
+    free_matrix(matrixP3) ;
+    free_matrix(matrixP4) ;
+    free_matrix(matrixP5) ;
+    free_matrix(matrixP6) ;
+    free_matrix(matrixP7) ;
+
     return _join_matrix(merge_1, merge_2, merge_3, merge_4);
   }
 }
@@ -308,6 +315,8 @@ void do_strassen_multiplication(Matrix * matrixA, Matrix * matrixB){
     matrixCnew = _do_recur_strassen(matrixAnew, matrixBnew);
     matrixC = _extend_matrix(matrixCnew, matrixSize);
     free_matrix(matrixCnew);
+    free_matrix(matrixAnew);
+    free_matrix(matrixBnew);
   }else{
     matrixC = _do_recur_strassen(matrixA, matrixB);
   }

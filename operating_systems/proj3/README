@@ -1,0 +1,14 @@
+Name:   Lovelin Anand Edward Paul
+B-Number: B00669954
+Email:    ledward6@binghamton.edu
+
+
+To Compile :
+  make
+
+To clean:
+  make clean
+
+The module parameter is N.
+To insert_module
+  insmod linepipe.ko N=<size_of_buffer>  

@@ -1,0 +1,1 @@
+cmd_/media/sf_workspace/homeworks/operating_systems/assignment2/test.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /media/sf_workspace/homeworks/operating_systems/assignment2/test.ko /media/sf_workspace/homeworks/operating_systems/assignment2/test.o /media/sf_workspace/homeworks/operating_systems/assignment2/test.mod.o

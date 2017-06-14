@@ -88,6 +88,7 @@ void update_global_predictor(int global_predictor_states[], unsigned *last_globa
 
   temp_global_index = (temp_global_index << 1) | current_branch.is_branch_taken;
   temp_global_index = temp_global_index & (MAXIMUM_GLOBAL_PREDICTOR_STATES - 1);
+  printf("global_state ===> %d\n", temp_global_index);
   *last_global_predictor_index = temp_global_index;
 };
 

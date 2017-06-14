@@ -1,0 +1,53 @@
+Name : Lovelin Anand Edward Paul
+B-Number: B00669954
+
+Singly Linked list has been used to store the cache
+Each Node of a linked list is of struct NODE defined in confutils.h
+
+
+
+
+
+
+Sample Input and Output
+
+Server Side:
+-------------------
+
+ledward6@remote02:~/proj2$ ./proxy 
+admin: started server on 'remote02.cs.binghamton.edu' at '39127'
+128.226.180.169|http://www.cs.binghamton.edu/~yaoliu/courses/cs528/course.css|CACHE_MISS|1841|23
+128.226.180.169|http://www.cs.binghamton.edu/~yaoliu/courses/cs528/course.css|CACHE_HIT|1841|0
+
+Client Side:
+-------------------
+
+ledward6@remote07:~/proj2$ export http_proxy=http://remote02.cs.binghamton.edu:41353 && wget http://www.cs.binghamton.edu/~yaoliu/courses/cs528/course.css
+--2017-05-03 12:50:19--  http://www.cs.binghamton.edu/~yaoliu/courses/cs528/course.css
+Resolving remote02.cs.binghamton.edu (remote02.cs.binghamton.edu)... 128.226.180.164
+Connecting to remote02.cs.binghamton.edu (remote02.cs.binghamton.edu)|128.226.180.164|:41353... failed: Connection refused.
+ledward6@remote07:~/proj2$ export http_proxy=http://remote02.cs.binghamton.edu:39127 && wget http://www.cs.binghamton.edu/~yaoliu/courses/cs528/course.css
+--2017-05-03 12:50:31--  http://www.cs.binghamton.edu/~yaoliu/courses/cs528/course.css
+Resolving remote02.cs.binghamton.edu (remote02.cs.binghamton.edu)... 128.226.180.164
+Connecting to remote02.cs.binghamton.edu (remote02.cs.binghamton.edu)|128.226.180.164|:39127... connected.
+Proxy request sent, awaiting response... 200 OK
+Length: 1841 (1.8K) [text/css]
+Saving to: ‘course.css.4’
+
+course.css.4           100%[============================>]   1.80K  --.-KB/s   in 0s     
+
+2017-05-03 12:50:31 (103 MB/s) - ‘course.css.4’ saved [1841/1841]
+
+ledward6@remote07:~/proj2$ export http_proxy=http://remote02.cs.binghamton.edu:39127 && wget http://www.cs.binghamton.edu/~yaoliu/courses/cs528/course.css
+--2017-05-03 12:50:36--  http://www.cs.binghamton.edu/~yaoliu/courses/cs528/course.css
+Resolving remote02.cs.binghamton.edu (remote02.cs.binghamton.edu)... 128.226.180.164
+Connecting to remote02.cs.binghamton.edu (remote02.cs.binghamton.edu)|128.226.180.164|:39127... connected.
+Proxy request sent, awaiting response... 200 OK
+Length: 1841 (1.8K) [text/css]
+Saving to: ‘course.css.5’
+
+course.css.5           100%[============================>]   1.80K  --.-KB/s   in 0s     
+
+2017-05-03 12:50:36 (79.7 MB/s) - ‘course.css.5’ saved [1841/1841]
+
+ledward6@remote07:~/proj2$ 

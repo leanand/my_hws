@@ -1,0 +1,22 @@
+Name: Lovelin Anand E
+Email : ledward6@binghamton.edu
+
+The source code is under proj4
+
+the module paremeter is input_pid
+
+The page faults are tested for 4 applications
+i) Sysbench - cpu benchmark (CPU intensive)
+ii) Iperf - network benchmark (IO intensive)
+iii) Sed - Replacing every word of a large text file
+iv) Strassen - Doing strassen multiplication between matrix of 2000 rows and cols (CPU and IO intensive)
+
+
+
+We can infer that,
+
+Page faults are frequent for IO intensive applications than CPU intensive applications.
+
+
+The Graph with data is under Report_log.xls
+and the graph with commands are in Report.docx

@@ -1,0 +1,16 @@
+Name:   Lovelin Anand Edward Paul
+B-Number: B00669954
+Email:    ledward6@binghamton.edu
+
+
+To Compile :
+  make
+
+To insert module (This will insert the module and change the device permission mode) :
+  make insert_module 
+
+To remove module :
+  make remove_module
+
+To clean:
+  make clean
